@@ -30,4 +30,5 @@ dependencies {
     compile 'com.alibaba:fastjson:1.2.21'
     testCompile 'junit:junit:4.12'
     compile project(':PullToRefresh')
+    compile 'com.github.soft-po:TransformerViewPager:1.0'
 }

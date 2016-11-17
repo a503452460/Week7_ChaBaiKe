@@ -36,6 +36,7 @@ public class WebActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web);
+        getSupportActionBar().hide();
         mCollcetSQLiteOpenHelper = new CollcetSQLiteOpenHelper(this);
         mHistorySQLiteHelper = new HistorySQLiteHelper(this);
         initView();

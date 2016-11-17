@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cbf.week7_chabaike.adapters.MyFragmentPagerAdapter;
+import com.softpo.viewpagertransformer.BackgroundToForegroundTransformer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity  {
 
     private List<Fragment> list = new ArrayList<>();
     private String[] mTitleArray = new String[]{"头条","百科","资讯","经营","数据"};
+    private View mRightMenu;
 
     public ViewPager getViewPager() {
         return mViewPager;
@@ -41,12 +43,24 @@ public class MainActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_main);
         getSupportActionBar().hide();
         initView();
+
         initClick();
         initViewPager();
         initTabLayout();
     }
 
+    @Override
+    public void onBackPressed() {
+        if(mDrawerLayout.isDrawerOpen(Gravity.RIGHT)){
+            mDrawerLayout.closeDrawer(Gravity.RIGHT);
+        }else {
+            super.onBackPressed();
+        }
+    }
+
     private void initClick() {
+        mRightMenu = findViewById(R.id.rightmenu);
+        mRightMenu.setClickable(true);
         more.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,6 +126,7 @@ public class MainActivity extends AppCompatActivity  {
         }
 
         FragmentPagerAdapter adapter = new MyFragmentPagerAdapter(getSupportFragmentManager(),list,mTitleArray);
+        mViewPager.setPageTransformer(true,new BackgroundToForegroundTransformer());
         mViewPager.setAdapter(adapter);
     }
 

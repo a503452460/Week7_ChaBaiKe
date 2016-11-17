@@ -1,9 +1,6 @@
 package com.cbf.week7_chabaike;
 
 
-import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,7 +15,11 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.ScaleAnimation;
+import android.view.animation.TranslateAnimation;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -33,9 +34,12 @@ import com.cbf.week7_chabaike.adapters.MyFragmentStatePagerAdapter;
 import com.cbf.week7_chabaike.asyncTask.MyByteAsyncTask;
 import com.cbf.week7_chabaike.beans.Tea;
 import com.cbf.week7_chabaike.callback.MyBytesCallBack;
+import com.cbf.week7_chabaike.utils.InternetUtils;
+import com.cbf.week7_chabaike.utils.SDcardUtils;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,6 +82,7 @@ public class FirstFragment extends Fragment {
         }
     };
     private View mHeadView;
+    private String mFileName;
 
     public FirstFragment() {
         // Required empty public constructor
@@ -86,6 +91,7 @@ public class FirstFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        adapter = new ListViewAdapter(getContext(),data);
         Bundle bundle = getArguments();
         index = bundle.getInt("index");
         switch (index){
@@ -168,35 +174,41 @@ public class FirstFragment extends Fragment {
     private void initHeadView() {
 
         mHeadView = LayoutInflater.from(getContext()).inflate(R.layout.head,null);
-        View ret = LayoutInflater.from(getContext()).inflate(R.layout.fragment_head, null);
         viewPager_head = (ViewPager) mHeadView.findViewById(R.id.viewPager_head);
+//        View ret = LayoutInflater.from(getContext()).inflate(R.layout.fragment_head, null);
         initViewPager_head();
-        initIndicator(ret);
+//        initIndicator(ret);
+//        new Timer().schedule(new TimerTask() {
+//            @Override
+//            public void run() {
         mHandle.sendEmptyMessageDelayed(911,0);
+//            }
+//        },0,2000);
+
 
     }
-    private View[] indicators = new View[3];
-    private  int lastSelected =0;
-    private void initIndicator(View ret) {
-        LinearLayout container = (LinearLayout) ret.findViewById(R.id.container);
+//    private View[] indicators = new View[3];
+//    private  int lastSelected =0;
+//    private void initIndicator(View ret) {
+//        LinearLayout container = (LinearLayout) ret.findViewById(R.id.container);
 //        Log.i("tag1", "initIndicator: "+container.getChildAt(1));
-        for (int i = 1; i < container.getChildCount(); i++) {
-            indicators[i-1] = container.getChildAt(i);
-
+//        for (int i = 1; i < container.getChildCount(); i++) {
+//            indicators[i-1] = container.getChildAt(i);
+//
 //            Log.i("tag", "initIndicator: "+container);
-
-            indicators[i-1].setEnabled(true);
-            indicators[i-1].setTag(i-1);
-            indicators[i-1].setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int index = (int) v.getTag();
-                    viewPager_head.setCurrentItem(index,true);
-                }
-            });
-        }
-        indicators[0].setEnabled(false);
-    }
+//
+//            indicators[i-1].setEnabled(true);
+//            indicators[i-1].setTag(i-1);
+//            indicators[i-1].setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    int index = (int) v.getTag();
+//                    viewPager_head.setCurrentItem(index,true);
+//                }
+//            });
+//        }
+//        indicators[0].setEnabled(false);
+//    }
 
     private void initViewPager_head() {
 
@@ -211,7 +223,7 @@ public class FirstFragment extends Fragment {
 
             list.add(fragment);
         }
-
+        viewPager_head.setOffscreenPageLimit(2);
         headAdapter = new MyFragmentStatePagerAdapter(getFragmentManager(),list);
         viewPager_head.setAdapter(headAdapter);
         viewPager_head.setOnTouchListener(new View.OnTouchListener() {
@@ -221,29 +233,30 @@ public class FirstFragment extends Fragment {
                 return false;
             }
         });
-        viewPager_head.setCurrentItem(1);
-        viewPager_head.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                indicators[position].setEnabled(false);
-                indicators[lastSelected].setEnabled(true);
-                lastSelected = position;
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
+//        viewPager_head.setCurrentItem(1);
+//        viewPager_head.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+//            @Override
+//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+//
+//            }
+//
+//            @Override
+//            public void onPageSelected(int position) {
+//                indicators[position].setEnabled(false);
+//                indicators[lastSelected].setEnabled(true);
+//                lastSelected = position;
+//
+//            }
+//
+//            @Override
+//            public void onPageScrollStateChanged(int state) {
+//
+//            }
+//        });
     }
 
     private void initPullToRefreshListView() {
-        adapter = new ListViewAdapter(getContext(),data);
+//        adapter = new ListViewAdapter(getContext(),data);
         mPullToRefreshListView.setAdapter(adapter);
         mPullToRefreshListView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener2<ListView>() {
             @Override
@@ -275,65 +288,64 @@ public class FirstFragment extends Fragment {
         });
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+            public boolean onItemLongClick(AdapterView<?> parent, final View view, final int position, long id) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                 builder.setIcon(R.mipmap.icon_dialog);
                 builder.setTitle("是否删除?");
                 builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-//                        data.remove(position-2);
-                        int firstVisiblePosition = listView.getFirstVisiblePosition();      // 存储所有的Animator，利用AnimatorSet直接播放
-                        ArrayList<Animator> animators = new ArrayList<Animator>();
-                        // 获得要删除的View
-                        View itemToDelete = listView.getChildAt(position - firstVisiblePosition);
-
-                        int viewHeight = itemToDelete.getHeight();
-                        int dividerHeight = listView.getDividerHeight();
-
-                        ObjectAnimator hideAnimator = ObjectAnimator.ofFloat(itemToDelete, "alpha",1f, 0f);
-
-                        animators.add(hideAnimator);
-
-                        int delay = 0;
-                        int firstViewToMove = position + 1;
-                        for (int i=firstViewToMove;i < listView.getChildCount(); ++i){
-                            View viewToMove = listView.getChildAt(i);
-
-                            ObjectAnimator moveAnimator = ObjectAnimator.ofFloat(viewToMove, "translationY", 0, -dividerHeight-viewHeight);
-                            moveAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-                            moveAnimator.setStartDelay(delay);
-
-                            delay += 100;
-
-                            animators.add(moveAnimator);
-                        }
-
-                        AnimatorSet set = new AnimatorSet();
-                        set.addListener(new Animator.AnimatorListener() {
+                        int width = getContext().getResources().getDisplayMetrics().widthPixels;
+                        TranslateAnimation translate = new TranslateAnimation(Animation.RELATIVE_TO_SELF,0,
+                                Animation.RELATIVE_TO_SELF,-1,Animation.RELATIVE_TO_SELF,0
+                        ,Animation.RELATIVE_TO_SELF,0);
+                        translate.setDuration(2000);
+                        view.startAnimation(translate);
+                        translate.setAnimationListener(new Animation.AnimationListener() {
                             @Override
-                            public void onAnimationStart(Animator animation) {}
-                            @Override
-                            public void onAnimationEnd(Animator animation) {
-                                data.remove(position);
-                                // 动画结束后，恢复ListView所有子View的属性
-                                for (int i=0;i<listView.getChildCount();++i){
-                                    View v = listView.getChildAt(i);
-
-                                    v.setAlpha(1f);
-                                    v.setTranslationY(0);
-                                }
+                            public void onAnimationStart(Animation animation) {
 
                             }
-                            @Override
-                            public void onAnimationCancel(Animator animation) {}
-                            @Override
-                            public void onAnimationRepeat(Animator animation) {}
-                        });
 
-                        set.playTogether(animators);
-                        set.start();
-                        adapter.notifyDataSetChanged();
+                            @Override
+                            public void onAnimationEnd(Animation animation) {
+                                if (index==0){
+                                    data.remove(position-2);
+                                }else{
+                                    data.remove(position-1);
+                                }
+                                adapter.notifyDataSetChanged();
+                                int count = listView.getChildCount();
+                                AnimationSet set = new AnimationSet(true);
+                                AlphaAnimation alphaAnimation = new AlphaAnimation(0,1);
+                                alphaAnimation.setDuration(1000);
+
+                                ScaleAnimation scaleAnimation = new ScaleAnimation(0,1,0,1,
+                                        Animation.RELATIVE_TO_SELF,0.5f,Animation.RELATIVE_TO_SELF,0.5f);
+                                scaleAnimation.setDuration(1000);
+                                set.addAnimation(alphaAnimation);
+                                set.addAnimation(scaleAnimation);
+                                int curentTop = view.getTop();
+                                for(int i=0;i<count;i++){
+                                    View itemView = listView.getChildAt(i);
+                                    if(itemView.getTop()>=curentTop){
+                                        itemView.startAnimation(set);
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onAnimationRepeat(Animation animation) {
+
+                            }
+                        });
+//                        if (index==0){
+//                            data.remove(position-2);
+//                        }else{
+//                            data.remove(position-1);
+//                        }
+
+
 
                     }
                 });
@@ -394,14 +406,15 @@ public class FirstFragment extends Fragment {
     private void loadMoreData() {
         page++;
         String path = "http://sns.maimaicha.com/api?apikey=b4f4ee31a8b9acc866ef2afb754c33e6&format=json&method=news.getHeadlines&rows=15&page="+page;
-        new MyByteAsyncTask(new MyBytesCallBack() {
-            @Override
-            public void onCallBack(byte[] bytes) {
-                Tea tea = JSON.parseObject(new String(bytes),Tea.class);
-                data.addAll(tea.getData());
-                adapter.notifyDataSetChanged();
-            }
-        },false).execute(path);
+//        new MyByteAsyncTask(new MyBytesCallBack() {
+//            @Override
+//            public void onCallBack(byte[] bytes) {
+//                Tea tea = JSON.parseObject(new String(bytes),Tea.class);
+//                data.addAll(tea.getData());
+//                adapter.notifyDataSetChanged();
+//            }
+//        },false).execute(path);
+        initData();
     }
 
     private void initListView() {
@@ -410,15 +423,26 @@ public class FirstFragment extends Fragment {
     }
 
     private void initData() {
-        new MyByteAsyncTask(new MyBytesCallBack() {
-            @Override
-            public void onCallBack(byte[] bytes) {
+//        String root = getContext().getExternalFilesDir(null).getAbsolutePath();
+        mFileName = "Tea"+index+"page"+page;
+        if(InternetUtils.isConnected(getContext())){
 
-                Tea tea = JSON.parseObject(new String(bytes),Tea.class);
-                data.addAll(tea.getData());
-                adapter.notifyDataSetChanged();
-            }
-        },false).execute(path);
+            new MyByteAsyncTask(new MyBytesCallBack() {
+                @Override
+                public void onCallBack(byte[] bytes) {
+
+                    Tea tea = JSON.parseObject(new String(bytes),Tea.class);
+                    data.addAll(tea.getData());
+                    adapter.notifyDataSetChanged();
+                }
+            },null,null, mFileName,MyByteAsyncTask.TYPE_CHACHE,getContext()).execute(path);
+        }else {
+            String filePath = getContext().getExternalCacheDir().getAbsolutePath()+File.separator+mFileName;
+            byte[] bytes =SDcardUtils.pickbyteFromSDCard(filePath);
+            Tea tea = JSON.parseObject(new String(bytes),Tea.class);
+            data.addAll(tea.getData());
+            adapter.notifyDataSetChanged();
+        }
     }
 
 }

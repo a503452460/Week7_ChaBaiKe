@@ -15,7 +15,10 @@ import com.cbf.week7_chabaike.adapters.ListViewAdapter;
 import com.cbf.week7_chabaike.asyncTask.MyByteAsyncTask;
 import com.cbf.week7_chabaike.beans.Tea;
 import com.cbf.week7_chabaike.callback.MyBytesCallBack;
+import com.cbf.week7_chabaike.utils.InternetUtils;
+import com.cbf.week7_chabaike.utils.SDcardUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,14 +48,32 @@ public class SearchActivity extends AppCompatActivity {
 
     private void initData() {
         search_name.setText(mString);
-        new MyByteAsyncTask(new MyBytesCallBack() {
-            @Override
-            public void onCallBack(byte[] bytes) {
-                Tea tea = JSON.parseObject(new String(bytes),Tea.class);
-                data.addAll(tea.getData());
-                mListViewAdapter.notifyDataSetChanged();
-            }
-        },false).execute(mSearchPath);
+//        new MyByteAsyncTask(new MyBytesCallBack() {
+//            @Override
+//            public void onCallBack(byte[] bytes) {
+//                Tea tea = JSON.parseObject(new String(bytes),Tea.class);
+//                data.addAll(tea.getData());
+//                mListViewAdapter.notifyDataSetChanged();
+//            }
+//        },false).execute(mSearchPath);
+        String fileName = mSearchPath.substring(mSearchPath.lastIndexOf("/")+1);
+        if(InternetUtils.isConnected(this)){
+
+            new MyByteAsyncTask(new MyBytesCallBack() {
+                @Override
+                public void onCallBack(byte[] bytes) {
+                    Tea tea = JSON.parseObject(new String(bytes),Tea.class);
+                    data.addAll(tea.getData());
+                    mListViewAdapter.notifyDataSetChanged();
+                }
+            },null,null,fileName,3,this).execute(mSearchPath);
+        }else{
+            String filePath = this.getExternalCacheDir().getAbsolutePath()+ File.separator+fileName;
+            byte[] bytes = SDcardUtils.pickbyteFromSDCard(filePath);
+            Tea tea = JSON.parseObject(new String(bytes),Tea.class);
+            data.addAll(tea.getData());
+            mListViewAdapter.notifyDataSetChanged();
+        }
     }
 
     private void initListView() {

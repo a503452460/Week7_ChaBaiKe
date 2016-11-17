@@ -24,6 +24,7 @@ public class GuideActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_guide);
+        getSupportActionBar().hide();
         initView();
 
     }
@@ -49,6 +50,14 @@ public class GuideActivity extends AppCompatActivity {
                 public void onPageSelected(int position) {
                     if(position==2){
                         go.setVisibility(View.VISIBLE);
+//                        list.get(position).setOnClickListener(new View.OnClickListener() {
+//                            @Override
+//                            public void onClick(View v) {
+//                                Intent intent = new Intent(GuideActivity.this,MainActivity.class);
+//                                GuideActivity.this.startActivity(intent);
+//                                GuideActivity.this.finish();
+//                            }
+//                        });
                         go.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
